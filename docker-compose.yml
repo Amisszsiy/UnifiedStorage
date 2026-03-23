@@ -1,0 +1,16 @@
+version: "3.9"
+
+services:
+  sqlserver:
+    container_name: sqlserver
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_PID=Express
+      - SA_PASSWORD=P@ssw0rd123
+    ports:
+      - "1433:1433"
+    volumes:
+      - ${USERPROFILE}/volumes/sqlserver/unifiedstorage/data:/var/opt/mssql/data
+      - ${USERPROFILE}/volumes/sqlserver/unifiedstorage/log:/var/opt/mssql/log
+      - ${USERPROFILE}/volumes/sqlserver/unifiedstorage/secrets:/var/opt/mssql/secrets

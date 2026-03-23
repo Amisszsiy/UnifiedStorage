@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="UnifiedStorage.Application/UnifiedStorage.Application.csproj" />
+  <Project Path="UnifiedStorage.Domain/UnifiedStorage.Domain.csproj" />
+  <Project Path="UnifiedStorage.Infrastructure/UnifiedStorage.Infrastructure.csproj" Id="738adf24-da1a-4ea7-b8d7-9f128ad15bbb" />
+  <Project Path="UnifiedStorage.WebAPI/UnifiedStorage.WebAPI.csproj" />
+</Solution>
