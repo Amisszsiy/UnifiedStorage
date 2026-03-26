@@ -209,17 +209,36 @@ Migrations are also applied automatically on startup in the Development environm
 
 ---
 
-## 11. Provider SDK Integration (Next Steps)
+## 11. Provider SDK Integration
 
-The provider service classes (`GoogleDriveService`, `OneDriveService`, `DropboxService`) are structured stubs. To complete integration:
+All three provider service classes are fully implemented.
 
-| Provider     | NuGet Package          | Status  |
-|--------------|------------------------|---------|
-| Google Drive | `Google.Apis.Drive.v3` | Stub    |
-| OneDrive     | `Microsoft.Graph`      | Stub    |
-| Dropbox      | `Dropbox.Api`          | Stub    |
+| Provider     | NuGet Package          | Version       | Status          |
+|--------------|------------------------|---------------|-----------------|
+| Google Drive | `Google.Apis.Drive.v3` | 1.73.0.4081   | Implemented ✅  |
+| OneDrive     | `Microsoft.Graph`      | 5.103.0       | Implemented ✅  |
+| Dropbox      | `Dropbox.Api`          | 7.0.0         | Implemented ✅  |
 
-Each stub contains commented-out code showing the implementation pattern.
+### Implementation Notes
+
+**Google Drive (`GoogleDriveService`)**
+- Uses `GoogleCredential.FromAccessToken(accessToken)` to build a `DriveService` per request.
+- `ListFilesAsync`: queries `files(id,name,size,modifiedTime,mimeType,parents,webContentLink)`, defaults to `'root' in parents`, excludes trashed items.
+- `UploadFileAsync`: uses `Files.Create` with resumable upload (`UploadAsync`).
+- `DownloadFileAsync`: Google Docs native formats (e.g. Docs, Sheets) are exported as PDF; binary files are downloaded directly.
+
+**OneDrive (`OneDriveService`)**
+- Uses `BaseBearerTokenAuthenticationProvider` with a file-scoped `StaticAccessTokenProvider` wrapper.
+- All item operations go through `client.Drives[driveId].Items[...]` (Graph SDK v5+ pattern — `Me.Drive` is only used to resolve the drive ID).
+- `ListFilesAsync`: paginates via `OdataNextLink`.
+- `UploadFileAsync`: uses `Items[parentId].ItemWithPath(fileName).Content.PutAsync()`.
+
+**Dropbox (`DropboxService`)**
+- Creates a `DropboxClient(accessToken)` per request.
+- `folderId` / `fileId` are Dropbox **paths** (e.g. `""` = root, `"/folder/sub"`), not opaque IDs.
+- `ListFilesAsync`: paginates via `ListFolderContinueAsync` while `HasMore` is true.
+- `UploadFileAsync`: uses `WriteMode.Overwrite`.
+- `DownloadFileAsync`: copies response stream to `MemoryStream` before disposing the client.
 
 ---
 
